@@ -1,0 +1,78 @@
+# Android Development Environment with SDK and Emulator
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    ANDROID_SDK_ROOT=/opt/android-sdk \
+    ANDROID_HOME=/opt/android-sdk \
+    PATH="${PATH}:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/emulator:/opt/android-sdk/platform-tools:/opt/android-sdk/tools/bin" \
+    JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+
+# Update system
+RUN apt-get update && apt-get upgrade -y
+
+# Install dependencies
+RUN apt-get install -y \
+    # Build tools
+    openjdk-21-jdk \
+    git \
+    curl \
+    wget \
+    # Android SDK dependencies
+    libgl1-mesa-glx \
+    libgl1-mesa-dev \
+    libxkbcommon-x11-0 \
+    libdbus-1-3 \
+    # X11 for emulator UI
+    x11-apps \
+    x11-utils \
+    xvfb \
+    # Additional tools
+    python3 \
+    python3-pip \
+    vim \
+    nano \
+    htop \
+    # Clean up
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create Android SDK directory
+RUN mkdir -p ${ANDROID_SDK_ROOT}
+
+WORKDIR ${ANDROID_SDK_ROOT}
+
+# Download and install Android SDK Command-line Tools
+RUN cd /tmp && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
+    unzip -q commandlinetools-linux-9477386_latest.zip -d ${ANDROID_SDK_ROOT} && \
+    mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
+    mv ${ANDROID_SDK_ROOT}/cmdline-tools/* ${ANDROID_SDK_ROOT}/cmdline-tools/latest/ 2>/dev/null || true && \
+    rm -f /tmp/commandlinetools-linux-9477386_latest.zip
+
+# Install Android SDK packages
+RUN yes Y | sdkmanager --licenses 2>/dev/null || true && \
+    sdkmanager --install "platforms;android-34" && \
+    sdkmanager --install "build-tools;34.0.0" && \
+    sdkmanager --install "system-images;android-34;google_apis;x86_64" && \
+    sdkmanager --install "emulator" && \
+    sdkmanager --install "platform-tools" && \
+    sdkmanager --install "tools"
+
+# Create Android emulator
+RUN echo "no" | avdmanager create avd -n android34 -k "system-images;android-34;google_apis;x86_64" -f -p ~/.android/avd/android34.avd 2>/dev/null || true
+
+# Create a non-root user
+RUN useradd -m -s /bin/bash android && \
+    echo "android ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    mkdir -p /home/android/projects && \
+    chown -R android:android /home/android /opt/android-sdk
+
+USER android
+
+WORKDIR /home/android/projects
+
+# Expose ports for Android Emulator
+EXPOSE 5037 5554 5555
+
+# Default command
+CMD ["/bin/bash"]

@@ -1,0 +1,16 @@
+target/
+.git
+.gitignore
+.gradle
+.idea
+.vscode
+*.class
+*.jar
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
+node_modules/
+__pycache__/
+*.pyc

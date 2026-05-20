@@ -1,0 +1,52 @@
+# Windows Development Environment (Linux-based with Windows tools simulation)
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PATH="/opt/wine/bin:/opt/dotnet:$PATH"
+
+# Update system
+RUN apt-get update && apt-get upgrade -y
+
+# Install core development tools
+RUN apt-get install -y \
+    # Build essentials
+    build-essential \
+    cmake \
+    git \
+    curl \
+    wget \
+    # .NET SDK (Windows-like development)
+    dotnet-sdk-8.0 \
+    # Wine for Windows application compatibility
+    wine \
+    wine32 \
+    wine64 \
+    # Additional development tools
+    nodejs \
+    npm \
+    python3 \
+    python3-pip \
+    openjdk-21-jdk \
+    maven \
+    # Version control and utilities
+    vim \
+    nano \
+    htop \
+    tmux \
+    # Clean up
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create working directory
+RUN mkdir -p /home/dev && chmod 777 /home/dev
+
+WORKDIR /home/dev
+
+# Create development user
+RUN useradd -m -s /bin/bash devuser && \
+    echo "devuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER devuser
+
+# Default shell
+CMD ["/bin/bash"]

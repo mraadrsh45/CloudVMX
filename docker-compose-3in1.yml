@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # Backend Spring Boot Application
+  cloudvmx-backend:
+    build:
+      context: ./cloudvmx-backend (3)/cloudvmx-backend
+      dockerfile: dockerfile
+    container_name: cloudvmx-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    networks:
+      - cloudvmx-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "service=backend"
+
+  # Frontend JavaFX Client
+  cloudvmx-client:
+    build:
+      context: ./cloudvmx/cloudvmx-client
+      dockerfile: Dockerfile
+    container_name: cloudvmx-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      cloudvmx-backend:
+        condition: service_healthy
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m
+      - BACKEND_URL=http://cloudvmx-backend:8080
+    networks:
+      - cloudvmx-network
+    restart: unless-stopped
+    labels:
+      - "service=frontend"
+
+  # Kali Linux - Security Testing Environment
+  kali:
+    build:
+      context: .
+      dockerfile: Dockerfile.kali
+    container_name: cloudvmx-kali
+    image: cloudvmx-kali:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - kali-home:/home/kali
+      - ./kali-projects:/home/kali/projects
+    networks:
+      - cloudvmx-network
+    restart: unless-stopped
+    labels:
+      - "service=security"
+      - "os=kali"
+
+  # Windows Development Environment
+  windows-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.windows
+    container_name: cloudvmx-windows
+    image: cloudvmx-windows:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - windows-home:/home/dev
+      - ./windows-projects:/home/dev/projects
+    environment:
+      - DISPLAY=:0
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/dotnet
+    networks:
+      - cloudvmx-network
+    restart: unless-stopped
+    labels:
+      - "service=development"
+      - "os=windows"
+
+  # Android Development Environment
+  android-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.android
+    container_name: cloudvmx-android
+    image: cloudvmx-android:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - android-home:/home/android
+      - ./android-projects:/home/android/projects
+    environment:
+      - ANDROID_SDK_ROOT=/opt/android-sdk
+      - ANDROID_HOME=/opt/android-sdk
+    ports:
+      - "5037:5037"
+      - "5554:5554"
+      - "5555:5555"
+    networks:
+      - cloudvmx-network
+    restart: unless-stopped
+    labels:
+      - "service=android"
+      - "os=android"
+
+networks:
+  cloudvmx-network:
+    driver: bridge
+
+volumes:
+  kali-home:
+  windows-home:
+  android-home:

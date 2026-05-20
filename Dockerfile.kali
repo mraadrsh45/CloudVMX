@@ -1,0 +1,43 @@
+# Kali Linux Docker Image for Security Testing
+
+FROM kalilinux/kali-rolling
+
+# Update and install essential tools
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
+    # Kali tools
+    kali-tools-top10 \
+    kali-tools-web \
+    kali-tools-network \
+    # Development tools
+    git \
+    python3 \
+    python3-pip \
+    curl \
+    wget \
+    vim \
+    nano \
+    # Penetration testing
+    metasploit-framework \
+    nmap \
+    burpsuite \
+    sqlmap \
+    nikto \
+    # Additional tools
+    openvpn \
+    tor \
+    exploitdb \
+    # Clean up
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /home/kali
+
+# Create a non-root user
+RUN useradd -m -s /bin/bash kaliuser && \
+    echo "kaliuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER kaliuser
+
+# Default shell
+CMD ["/bin/bash"]
