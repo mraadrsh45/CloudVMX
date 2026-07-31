@@ -3,7 +3,6 @@ REM CloudVMX 3-in-1 Docker Setup Script
 REM Builds and runs Kali, Windows Dev, Android, Backend, and Frontend environments
 
 setlocal enabledelayedexpansion
-
 echo.
 echo ================================================
 echo  CloudVMX 3-in-1 Docker Environment Setup
