@@ -121,8 +121,14 @@ docker compose -f docker-compose-3in1.yml up -d
 - [Base Docker Setup](README-DOCKER.md)
 - [Integration Fixes & Troubleshooting](INTEGRATION-FIX.md)
 
+## 👤 Author & Maintainer
+
+- **Luxman Kumar** - [@mraadrsh45](https://github.com/mraadrsh45)
+- **Email**: [luxmankumar628@gmail.com](mailto:luxmankumar628@gmail.com)
+
 ---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the repository details for more information.
+
