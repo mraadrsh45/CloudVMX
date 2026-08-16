@@ -117,6 +117,25 @@ You can customize the environment by editing `docker-compose.yml`:
 2. **Runtime Stage**: Alpine Linux with JRE + X11 libraries
 3. **X11 Libraries**: Essential for JavaFX GUI support
 4. **Libraries Included**: libxext6, libxrender1, libxtst6, libxi6
+## API Reference
+
+### 1. VM Lifecycle & Health Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/health` | Backend and Docker connection health check |
+| `GET` | `/api/ping` | Ping Docker daemon |
+| `GET` | `/api/ops/status` | Current active VM container and Docker status |
+| `POST` | `/api/ops/images/prefetch` | Prefetches default VM image |
+| `GET`/`POST` | `/api/vms/{id}/start` | Starts a VM container for specified ID |
+| `GET`/`POST` | `/api/vms/{id}/stop` | Stops the running VM container |
+
+### 2. Apache Guacamole HTML5 Gateway Endpoints
+| Method | Endpoint | Headers / Parameters | Description |
+|--------|----------|----------------------|-------------|
+| `POST` | `/api/guacamole/auth` | Body: `{"username": "...", "password": "..."}` | Authenticates user with Apache Guacamole and returns session token |
+| `GET` | `/api/guacamole/connections` | Header: `Guacamole-Token: <token>`<br>Query: `dataSource` (default: postgresql) | Lists all assigned VM connections for authenticated user |
+| `POST` | `/api/guacamole/connect` | Body: `{"username": "...", "password": "...", "vmName": "...", "protocol": "rdp", "host": "...", "port": 3389}` | Authenticates, provisions/resolves connection, and returns direct HTML5 client access URL |
+| `DELETE` | `/api/guacamole/session` | Header: `Guacamole-Token: <token>` | Terminates and invalidates Guacamole session |
 
 ## Troubleshooting
 

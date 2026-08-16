@@ -1,0 +1,35 @@
+version: '3.8'
+
+networks:
+  rustdesk-net:
+    external: false
+
+services:
+  hbbs:
+    container_name: cloudvmx-hbbs
+    image: rustdesk/rustdesk-server:latest
+    # -k _ forces key authentication
+    # Replace the IP with your server's public IP or domain in production
+    command: hbbs -r localhost:21117 -k _
+    volumes:
+      - ./data:/root
+    network_mode: "host"
+    restart: unless-stopped
+    depends_on:
+      - hbbr
+
+  hbbr:
+    container_name: cloudvmx-hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr -k _
+    volumes:
+      - ./data:/root
+    network_mode: "host"
+    restart: unless-stopped
+
+#  web-client:
+#    container_name: cloudvmx-web
+#    image: rustdesk/rustdesk-web-client:latest
+#    ports:
+#      - "5000:5000"
+#    restart: unless-stopped

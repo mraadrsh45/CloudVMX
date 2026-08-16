@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Update system
 RUN apt-get update && apt-get upgrade -y
 
-# Install dependencies 
+# Install dependencies
 RUN apt-get install -y \
     # Build tools
     openjdk-21-jdk \

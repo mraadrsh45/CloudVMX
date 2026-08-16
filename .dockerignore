@@ -1,6 +1,6 @@
 target/
 .git
-.gitignore 
+.gitignore
 .gradle
 .idea
 .vscode
